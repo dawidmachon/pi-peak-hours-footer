@@ -1,7 +1,7 @@
 /**
  * Smoke test for the SETSTATUS (append-only) placement — the default and only
  * placement: pi concatenates keyed extension statuses, so this coexists with
- * crofai's setStatus("crofai-usage", …) with zero conflict.
+ * any other extension's status line with zero conflict.
  * A temp config (show: always) is loaded BEFORE importing the extension entry.
  * Runs without a pi runtime:
  *   node test/status.test.ts
@@ -32,7 +32,7 @@ const pi = {
 peakHoursFooter(pi);
 
 // model carries BOTH id and display name (like pi's Model), and a separate
-// crofai-usage status may already be set (other extensions coexist).
+// statuses from other extensions may already be set (they coexist).
 function fakeCtx(model: { provider: string; id: string; name: string } | undefined) {
 	return {
 		mode: "tui" as const,
@@ -69,10 +69,10 @@ check(
 	JSON.stringify(statusCalls),
 );
 
-// model_select to a non-tracked provider (crofai) → status cleared
-await handlers.model_select?.({}, fakeCtx({ provider: "crofai", id: "deepseek-v4-flash-0731", name: "DeepSeek V4 Flash" }));
+// model_select to a non-tracked provider → status cleared
+await handlers.model_select?.({}, fakeCtx({ provider: "untracked-provider", id: "some-model", name: "Some Model" }));
 check(
-	"setStatus: clears peak-hours for non-tracked provider (crofai untouched)",
+	"setStatus: clears peak-hours for non-tracked provider (others untouched)",
 	statusCalls.some((c) => c.key === "peak-hours" && c.text === undefined) ?? false,
 );
 

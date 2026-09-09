@@ -54,8 +54,8 @@ providers/models/promotions can be added without rebuilding.
    `dist/core/extensions/types.d.ts` / the `model-status.ts` example. Never do
    `model.provider.id`. `model.name` is the display name (fall back to `id`).
 2. **Append-only footer.** Use `setStatus(key, text)` only — it is keyed and
-   pi concatenates statuses from ALL extensions (crofai uses
-   `setStatus("crofai-usage", …)`; ours uses `"peak-hours"`; both coexist).
+   pi concatenates statuses from ALL extensions (ours is `"peak-hours"`),
+   so multiple status extensions coexist.
    NEVER use `setFooter()` — it replaces the whole footer and would clobber
    (and be clobbered by) other extensions. `setWidget()` was upstream's choice
    and also pushes the editor — avoid.

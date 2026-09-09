@@ -2,8 +2,9 @@
 
 Peak/off-peak billing-hours **and promotion (campaign)** indicator for the
 [pi coding agent](https://github.com/earendil-works/pi-coding-agent), rendered
-in the footer as a **keyed status line** (append-only — coexists with every
-other extension's status, e.g. crofai's usage indicator, with zero conflict).
+in the footer as a **keyed status line** (append-only — pi concatenates keyed
+extension statuses, so it coexists with any other extension's footer content
+with zero conflict).
 
 The indicator appears only when the currently selected model belongs to a
 configured provider, and its first token is an immediate GO/STOP signal:
@@ -17,9 +18,9 @@ configured provider, and its first token is an immediate GO/STOP signal:
 
 ## Features
 
-- **Append-only footer** — uses `ctx.ui.setStatus("peak-hours", …)`, exactly
-  like crofai uses `setStatus("crofai-usage", …)`. pi concatenates keyed
-  statuses, so nothing replaces anyone else's footer and nothing breaks.
+- **Append-only footer** — uses `ctx.ui.setStatus("peak-hours", …)`. pi
+  concatenates keyed extension statuses, so it never replaces or breaks any
+  other extension's footer content.
 - **Config-driven rules** — providers, models, and time-windowed promotions are
   **data** in `~/.pi/agent/peak-hours.json`. Add a provider/model/campaign with
   a config edit; no rebuild, no code changes.

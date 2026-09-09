@@ -1,9 +1,9 @@
 /**
  * pi-peak-hours-footer — peak/off-peak billing indicator for the pi FOOTER.
  *
- * Uses `ctx.ui.setStatus("peak-hours", text)` — the same key-based approach
- * as crofai, so both extensions coexist without conflict. Multiple extensions
- * can each set their own keyed status; pi concatenates them in the footer.
+ * Uses `ctx.ui.setStatus("peak-hours", text)` — a keyed status line: pi
+ * concatenates all extensions' keyed statuses, so this coexists with any
+ * other extension without conflict.
  *
  * Shows a compact line when the selected model belongs to a configured provider:
  *   ✓ off-peak · GLM-5.3-Flash · ×0.4

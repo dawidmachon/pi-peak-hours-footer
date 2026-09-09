@@ -77,8 +77,8 @@ check(
 	JSON.stringify(statusCalls),
 );
 
-// model_select to crofai (untracked) → cleared
-currentModel = { provider: "crofai", id: "deepseek-v4-flash-0731", name: "DeepSeek V4 Flash" };
+// model_select to an untracked provider → status cleared
+currentModel = { provider: "untracked-provider", id: "some-model", name: "Some Model" };
 await handlers.model_select?.({}, sharedCtx);
 check(
 	"model_select clears status for non-tracked provider",
