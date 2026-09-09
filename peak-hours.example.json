@@ -1,0 +1,122 @@
+{
+  "//": "pi-peak-hours-footer config. CONVENTION: absolute instants (campaign start/end, weekendOffPeakFrom) are UTC with Z suffix; HH:mm windows are wall-clock on the provider's billing calendar (calendarOffsetMinutes). User is responsible for correct timings. Options: timezone (legacy alias, optional), displayTimezone=\"auto\"|IANA (how 'until' times are shown), show=\"always\"|\"peak\", tickSeconds, providers[].",
+  "timezone": "auto",
+  "show": "always",
+  "tickSeconds": 30,
+  "providers": [
+    {
+      "id": "zai",
+      "aliases": [
+        "glm",
+        "zhipu"
+      ],
+      "label": "GLM Coding Plan",
+      "shortLabel": "GLM",
+      "calendarOffsetMinutes": 480,
+      "windows": [
+        {
+          "start": "14:00",
+          "end": "18:00"
+        }
+      ],
+      "peakWeekdays": [
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "peakMultiplier": 1,
+      "offPeakMultiplier": 0.5,
+      "models": [
+        {
+          "id": "glm-5.3",
+          "label": "GLM-5.3",
+          "peakMultiplier": 3,
+          "offPeakMultiplier": 1
+        },
+        {
+          "id": "glm-5.3-flash*",
+          "label": "GLM-5.3-Flash",
+          "peakMultiplier": 1.2,
+          "offPeakMultiplier": 0.4,
+          "campaigns": [
+            {
+              "name": "GLM-5.3-Flash Usage Campaign",
+              "start": "2026-09-02T16:00:00Z",
+              "end": "2026-09-20T16:00:00Z",
+              "window": {
+                "start": "23:00",
+                "end": "09:00"
+              },
+              "days": [
+                1,
+                2,
+                3,
+                4,
+                5,
+                6,
+                7
+              ],
+              "quotaMultiplier": 2,
+              "label": "2× quota",
+              "details": [
+                "ZCode: 0 quota"
+              ]
+            }
+          ]
+        }
+      ],
+      "source": "https://docs.z.ai/devpack/overview"
+    },
+    {
+      "id": "deepseek",
+      "label": "DeepSeek",
+      "shortLabel": "DS",
+      "calendarOffsetMinutes": 480,
+      "windows": [
+        {
+          "start": "09:00",
+          "end": "12:00"
+        },
+        {
+          "start": "14:00",
+          "end": "18:00"
+        }
+      ],
+      "peakWeekdays": [
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "weekendOffPeakFrom": "2026-08-22T16:00:00Z",
+      "peakMultiplier": 1,
+      "offPeakMultiplier": 0.5,
+      "source": "https://api-docs.deepseek.com/quick_start/pricing/"
+    },
+    {
+      "id": "minimax",
+      "enabled": false,
+      "label": "MiniMax",
+      "shortLabel": "MM",
+      "calendarOffsetMinutes": 480,
+      "windows": [
+        {
+          "start": "09:00",
+          "end": "12:00"
+        }
+      ],
+      "peakWeekdays": [
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "offPeakMultiplier": 0.5
+    }
+  ],
+  "displayTimezone": "auto"
+}

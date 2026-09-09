@@ -1,0 +1,56 @@
+{
+  "name": "pi-peak-hours-footer",
+  "version": "1.0.0",
+  "description": "Peak/off-peak billing-hours + promotion indicator for the pi coding agent. Config-driven: providers, models, and time-windowed campaigns via a JSON data file. Append-only footer status, /peak all-models report.",
+  "type": "module",
+  "keywords": [
+    "pi-package",
+    "pi-coding-agent",
+    "tui",
+    "footer",
+    "peak-hours",
+    "billing",
+    "deepseek",
+    "glm"
+  ],
+  "license": "MIT",
+  "author": {
+    "name": "dawidmachon",
+    "email": "ja@machon.net",
+    "url": "https://github.com/dawidmachon"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/dawidmachon/pi-peak-hours-footer.git"
+  },
+  "homepage": "https://github.com/dawidmachon/pi-peak-hours-footer#readme",
+  "bugs": {
+    "url": "https://github.com/dawidmachon/pi-peak-hours-footer/issues"
+  },
+  "files": [
+    "src",
+    "README.md",
+    "LICENSE",
+    "CONTRIBUTING.md",
+    "peak-hours.example.json"
+  ],
+  "pi": {
+    "extensions": [
+      "./src/index.ts"
+    ]
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "test": "node test/core.test.ts && node test/config.test.ts && node test/status.test.ts && node test/selfcheck.ts",
+    "selfcheck": "node test/selfcheck.ts",
+    "check": "npm run typecheck && npm test"
+  },
+  "devDependencies": {
+    "@earendil-works/pi-coding-agent": "*",
+    "@types/node": "^24.13.3",
+    "typescript": "^5.9.3"
+  },
+  "peerDependencies": {
+    "@earendil-works/pi-coding-agent": "*"
+  }
+}
