@@ -22,7 +22,6 @@ import {
 	computeStatus,
 	findProvider,
 	globMatch,
-	isPeakAt,
 	parseHm,
 	resolveRule,
 	shifted,
@@ -46,19 +45,6 @@ export function resolveTimezone(setting: string): string {
 	} catch {
 		return resolveTimezone("auto");
 	}
-}
-
-/** Offset of a timezone at the given instant, in minutes (east positive). */
-export function tzOffsetMinutes(instant: Date, tz: string): number {
-	const parts = new Intl.DateTimeFormat("en-US", {
-		timeZone: tz, year: "numeric", month: "2-digit", day: "2-digit",
-		hour: "2-digit", minute: "2-digit", second: "2-digit", hourCycle: "h23",
-	}).formatToParts(instant);
-	const get = (type: string): string => parts.find((p) => p.type === type)?.value ?? "00";
-	const asUtc = Date.parse(
-		`${get("year")}-${get("month")}-${get("day")}T${get("hour")}:${get("minute")}:${get("second")}Z`,
-	);
-	return Math.round((asUtc - instant.getTime()) / 60_000);
 }
 
 function dayKey(instant: Date, tz: string): string {
@@ -179,15 +165,19 @@ function weekdayText(rule: ProviderRule): string {
 	return wd.map((d) => "SMTWTFS"[d - 1]).join("");
 }
 
-/** Format a billing-calendar HH:mm as "HH:mm UTC+08" (consistent, no TZ math). */
-function fmtBillingClock(calendarMinutes: number, offsetMinutes: number): string {
+/** Format a billing-calendar HH:mm as plain "HH:mm" (the offset is shown once per line). */
+function billingClock(calendarMinutes: number): string {
 	const h = String(Math.floor(calendarMinutes / 60)).padStart(2, "0");
 	const m = String(calendarMinutes % 60).padStart(2, "0");
-	const sign = offsetMinutes >= 0 ? "+" : "-";
-	const abs = Math.abs(offsetMinutes);
-	const zh = String(Math.floor(abs / 60)).padStart(2, "0");
-	const zm = String(abs % 60).padStart(2, "0");
-	return `${h}:${m} UTC${sign}${zh}:${zm}`;
+	return `${h}:${m}`;
+}
+
+/** Campaign lifecycle mark for the report: "🎁 ACTIVE", "⏳ ENDED", or blank padding. */
+function campaignMark(c: Campaign, offsetMinutes: number, now: Date): string {
+	if (campaignActiveAt(offsetMinutes, c, now)) return "🎁 ACTIVE";
+	const endMs = Date.parse(c.end);
+	if (Number.isFinite(endMs) && now.getTime() >= endMs) return "⏳ ENDED";
+	return "          ";
 }
 
 /** Billing-calendar date (YYYY-MM-DD) for an instant, used for campaign periods. */
@@ -209,7 +199,7 @@ function campaignLine(c: Campaign, offsetMinutes: number): string {
 			: `${c.start.slice(0, 10)} → ${c.end.slice(0, 10)}`;
 	let when = "";
 	if (c.window) {
-		when = ` · daily ${fmtBillingClock(parseHm(c.window.start), offsetMinutes)}-${fmtBillingClock(parseHm(c.window.end), offsetMinutes)}`;
+		when = ` · daily ${billingClock(parseHm(c.window.start))}-${billingClock(parseHm(c.window.end))} (${utcOffsetText(offsetMinutes)})`;
 		if (c.days && c.days.length > 0 && c.days.length < 7) {
 			when += ` · ${c.days.map((d) => "SMTWTFS"[d - 1]).join("")}`;
 		}
@@ -219,18 +209,11 @@ function campaignLine(c: Campaign, offsetMinutes: number): string {
 	return `${c.name} (${period}${when}) — ${effect}${facts}`;
 }
 
-/** "23:00" as billing minutes; used for alignment. */
-function paddedClock(mins: number): string {
-	const h = String(Math.floor(mins / 60)).padStart(2, "0");
-	const m = String(mins % 60).padStart(2, "0");
-	return `${h}:${m}`;
-}
-
 /** A fixed-width time window in the billing calendar (for aligned report). */
 function billingWindowText(rule: ProviderRule): string {
 	if (rule.windows.length === 0) return "—";
 	return rule.windows
-		.map((w) => `${paddedClock(parseHm(w.start))}-${paddedClock(parseHm(w.end))}`)
+		.map((w) => `${billingClock(parseHm(w.start))}-${billingClock(parseHm(w.end))}`)
 		.join(", ");
 }
 
@@ -315,27 +298,14 @@ export function reportLines(
 		lines.push(head);
 		for (const c of rule.campaigns ?? []) {
 			if (c.model && !(current && rule === currentProvider)) continue;
-			const active = campaignActiveAt(offset, c, now);
-			const endMs = Date.parse(c.end);
-			const ended = Number.isFinite(endMs) && now.getTime() >= endMs;
-			const mark = active ? "🎁 ACTIVE" : ended ? "⏳ ENDED" : "          ";
-			lines.push(`      ${mark} ${campaignLine(c, offset)}`);
+			lines.push(`      ${campaignMark(c, offset, now)} ${campaignLine(c, offset)}`);
 		}
 		if (isCurrent && current) {
 			const mr = chooseModelRule(rule, current.modelId);
 			for (const c of mr?.campaigns ?? []) {
-				const active = campaignActiveAt(offset, c, now);
-				const endMs = Date.parse(c.end);
-				const ended = Number.isFinite(endMs) && now.getTime() >= endMs;
-				const mark = active ? "🎁 ACTIVE" : ended ? "⏳ ENDED" : "          ";
-				lines.push(`      ${mark} ${campaignLine(c, offset)}`);
+				lines.push(`      ${campaignMark(c, offset, now)} ${campaignLine(c, offset)}`);
 			}
 		}
 	}
 	return lines;
-}
-
-/** Is a provider currently in peak (provider-level windows)? Used by tests/tools. */
-export function providerPeakAt(rule: ProviderRule, now: Date): boolean {
-	return isPeakAt(resolveRule(rule, ""), now);
 }
