@@ -1,6 +1,6 @@
 {
   "name": "pi-peak-hours-footer",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Peak/off-peak billing-hours + promotion indicator for the pi coding agent. Config-driven: providers, models, and time-windowed campaigns via a JSON data file. Append-only footer status, /peak all-models report.",
   "type": "module",
   "keywords": [
